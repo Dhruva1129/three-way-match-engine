@@ -1,0 +1,107 @@
+{
+  "poNumber": "PO-1001",
+  "status": "mismatch",
+  "reasons": [
+    "price_mismatch",
+    "invoice_qty_exceeds_grn_qty",
+    "invoice_qty_exceeds_po_qty",
+    "unmapped_master_sku"
+  ],
+  "missing": { "po": false, "grn": false, "invoice": false },
+  "documents": {
+    "po": [{ "id": "665f1a1a1a1a1a1a1a1a1a01", "poNumber": "PO-1001", "poDate": "2024-05-01T00:00:00.000Z", "vendorName": "Bikaji Foods International Ltd.", "createdAt": "2024-05-02T09:12:00.000Z" }],
+    "grn": [{ "id": "665f1a1a1a1a1a1a1a1a1a02", "grnNumber": "GRN-5107297866", "grnDate": "2024-05-06T00:00:00.000Z", "createdAt": "2024-05-06T14:05:00.000Z" }],
+    "invoice": [{ "id": "665f1a1a1a1a1a1a1a1a1a03", "invoiceNumber": "INV-88210", "invoiceDate": "2024-05-07T00:00:00.000Z", "createdAt": "2024-05-07T11:20:00.000Z" }]
+  },
+  "items": [
+    {
+      "key": "sku:665f0a0a0a0a0a0a0a0a0a01",
+      "itemCode": "BIK-BIKANERI-200G",
+      "description": "Bikaji Bikaneri Bhujia 200 G Pp",
+      "skuMaster": {
+        "id": "665f0a0a0a0a0a0a0a0a0a01",
+        "skuErpCode": "BIK-BIKANERI-200G",
+        "name": "Bikaji Bikaneri Bhujia 200 G Pp",
+        "eanCode": "8901234567890",
+        "hsnCode": "21069099",
+        "uom": "EA",
+        "agreedRate": 45,
+        "mrp": 50
+      },
+      "unmappedMasterSku": false,
+      "onPO": true,
+      "onGRN": true,
+      "onInvoice": true,
+      "poQuantity": 500,
+      "grnQuantity": 480,
+      "invoiceQuantity": 480,
+      "unitRate": 47.5,
+      "mrp": 50,
+      "grossAmount": 22800,
+      "priceMismatch": true,
+      "mrpMismatch": false,
+      "reasons": ["price_mismatch"]
+    },
+    {
+      "key": "sku:665f0a0a0a0a0a0a0a0a0a02",
+      "itemCode": "HALDIRAM-AALOO-150G",
+      "description": "Haldiram's Aloo Bhujia 150 G",
+      "skuMaster": {
+        "id": "665f0a0a0a0a0a0a0a0a0a02",
+        "skuErpCode": "HALDIRAM-AALOO-150G",
+        "name": "Haldiram's Aloo Bhujia 150 G",
+        "eanCode": "8901234567891",
+        "hsnCode": "21069099",
+        "uom": "EA",
+        "agreedRate": 32,
+        "mrp": 35
+      },
+      "unmappedMasterSku": false,
+      "onPO": true,
+      "onGRN": true,
+      "onInvoice": true,
+      "poQuantity": 300,
+      "grnQuantity": 300,
+      "invoiceQuantity": 320,
+      "unitRate": 32,
+      "mrp": 35,
+      "grossAmount": 10240,
+      "priceMismatch": false,
+      "mrpMismatch": false,
+      "reasons": ["invoice_qty_exceeds_grn_qty", "invoice_qty_exceeds_po_qty"]
+    },
+    {
+      "key": "code:UNKNOWN-ITEM-999",
+      "itemCode": "UNKNOWN-ITEM-999",
+      "description": "Assorted Namkeen Sampler 100g",
+      "skuMaster": null,
+      "unmappedMasterSku": true,
+      "onPO": true,
+      "onGRN": true,
+      "onInvoice": true,
+      "poQuantity": 100,
+      "grnQuantity": 100,
+      "invoiceQuantity": 100,
+      "unitRate": 18,
+      "mrp": 0,
+      "grossAmount": 1800,
+      "priceMismatch": false,
+      "mrpMismatch": false,
+      "reasons": ["unmapped_master_sku"]
+    }
+  ],
+  "audit": [
+    { "step": "parse", "status": "success", "message": "Extracted PO via Gemini", "at": "2024-05-02T09:12:00.000Z" },
+    { "step": "master_resolution", "status": "success", "message": "All items resolved", "at": "2024-05-02T09:12:01.000Z" },
+    { "step": "persist", "status": "success", "message": "PO stored (id 665f1a1a1a1a1a1a1a1a1a01)", "at": "2024-05-02T09:12:01.000Z" },
+    { "step": "duplication_check", "status": "success", "message": "No duplicates found", "at": "2024-05-02T09:12:01.000Z" },
+    { "step": "parse", "status": "success", "message": "Extracted GRN via Gemini", "at": "2024-05-06T14:05:00.000Z" },
+    { "step": "master_resolution", "status": "warning", "message": "1 item(s) could not be resolved to a SKU Master record", "at": "2024-05-06T14:05:01.000Z" },
+    { "step": "persist", "status": "success", "message": "GRN stored (id 665f1a1a1a1a1a1a1a1a1a02)", "at": "2024-05-06T14:05:01.000Z" },
+    { "step": "duplication_check", "status": "success", "message": "No duplicates found", "at": "2024-05-06T14:05:01.000Z" },
+    { "step": "parse", "status": "success", "message": "Extracted Invoice via Gemini", "at": "2024-05-07T11:20:00.000Z" },
+    { "step": "master_resolution", "status": "warning", "message": "1 item(s) could not be resolved to a SKU Master record", "at": "2024-05-07T11:20:01.000Z" },
+    { "step": "persist", "status": "success", "message": "Invoice stored (id 665f1a1a1a1a1a1a1a1a1a03)", "at": "2024-05-07T11:20:01.000Z" },
+    { "step": "duplication_check", "status": "success", "message": "No duplicates found", "at": "2024-05-07T11:20:01.000Z" }
+  ]
+}

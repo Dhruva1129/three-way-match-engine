@@ -1,0 +1,10 @@
+{
+  "invoiceNumber": "INV-88210",
+  "poNumber": "PO-1001",
+  "invoiceDate": "2024-05-07",
+  "items": [
+    { "itemCode": "BIK-BIKANERI-200G", "description": "Bikaji Bikaneri Bhujia 200 G Pp", "quantity": 480, "unitRate": 47.5, "mrp": 50 },
+    { "itemCode": "HALDIRAM-AALOO-150G", "description": "Haldiram's Aloo Bhujia 150 G", "quantity": 320, "unitRate": 32, "mrp": 35 },
+    { "itemCode": "UNKNOWN-ITEM-999", "description": "Assorted Namkeen Sampler 100g", "quantity": 100, "unitRate": 18, "mrp": 0 }
+  ]
+}

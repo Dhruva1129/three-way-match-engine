@@ -1,0 +1,10 @@
+{
+  "poNumber": "PO-1001",
+  "poDate": "2024-05-01",
+  "vendorName": "Bikaji Foods International Ltd.",
+  "items": [
+    { "itemCode": "BIK-BIKANERI-200G", "description": "Bikaji Bikaneri Bhujia 200g", "quantity": 500 },
+    { "itemCode": "HALDIRAM-AALOO-150G", "description": "Haldiram Aloo Bhujia 150g", "quantity": 300 },
+    { "itemCode": "UNKNOWN-ITEM-999", "description": "Assorted Namkeen Sampler 100g", "quantity": 100 }
+  ]
+}

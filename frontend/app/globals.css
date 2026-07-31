@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent-po: #2E5FE0;
+  --accent-grn: #0EA5A0;
+  --accent-invoice: #8A5CF6;
+}
+
+html {
+  font-size: 70%;
+}
+
+/* Global styles */
+* {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Components */
+.status-pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+}
+
+.panel {
+  @apply rounded-lg border border-slate-200 bg-white shadow-panel;
+}
+
+.field-label {
+  @apply text-[11px] font-medium uppercase tracking-wide text-slate-400;
+}
+
+.field-value {
+  @apply text-sm font-medium text-slate-800;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}

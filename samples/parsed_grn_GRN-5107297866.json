@@ -1,0 +1,10 @@
+{
+  "grnNumber": "GRN-5107297866",
+  "poNumber": "PO-1001",
+  "grnDate": "2024-05-06",
+  "items": [
+    { "itemCode": "BIK-BIKANERI-200G", "description": "Bikaji Bikaneri Bhujia 200 G Pp", "receivedQuantity": 480, "mrp": 50 },
+    { "itemCode": "HALDIRAM-AALOO-150G", "description": "Haldiram's Aloo Bhujia 150 G", "receivedQuantity": 300, "mrp": 35 },
+    { "itemCode": "UNKNOWN-ITEM-999", "description": "Assorted Namkeen Sampler 100g", "receivedQuantity": 100, "mrp": 0 }
+  ]
+}

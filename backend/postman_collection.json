@@ -1,0 +1,128 @@
+{
+  "info": {
+    "name": "Three-Way Match Engine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "poNumber", "value": "PO-1001" }
+  ],
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}" },
+        "url": "{{baseUrl}}/auth/login"
+      }
+    },
+    {
+      "name": "Documents - Upload",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "documentType", "value": "po", "type": "text" },
+            { "key": "file", "type": "file", "src": "" }
+          ]
+        },
+        "url": "{{baseUrl}}/documents/upload"
+      }
+    },
+    {
+      "name": "Documents - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/documents?poNumber={{poNumber}}"
+      }
+    },
+    {
+      "name": "Documents - Get by Id",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/documents/:id"
+      }
+    },
+    {
+      "name": "Documents - Get File",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/documents/:id/file"
+      }
+    },
+    {
+      "name": "Match - Get by PO Number",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/match/{{poNumber}}"
+      }
+    },
+    {
+      "name": "Summary - Get by PO Number",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/summary/{{poNumber}}"
+      }
+    },
+    {
+      "name": "SKU Master - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"skuErpCode\": \"BIK-BIKANERI-200G\",\n  \"name\": \"Bikaji Bikaneri Bhujia 200 G Pp\",\n  \"eanCode\": \"8901234567890\",\n  \"hsnCode\": \"21069099\",\n  \"uom\": \"EA\",\n  \"agreedRate\": 45,\n  \"mrp\": 50,\n  \"priceTolerance\": 0.05\n}"
+        },
+        "url": "{{baseUrl}}/masters/sku"
+      }
+    },
+    {
+      "name": "SKU Master - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/masters/sku"
+      }
+    },
+    {
+      "name": "SKU Master - Get by Id",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/masters/sku/:id"
+      }
+    },
+    {
+      "name": "SKU Master - Update",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"agreedRate\": 47\n}" },
+        "url": "{{baseUrl}}/masters/sku/:id"
+      }
+    },
+    {
+      "name": "SKU Master - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/masters/sku/:id"
+      }
+    }
+  ]
+}

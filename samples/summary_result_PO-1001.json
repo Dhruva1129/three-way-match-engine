@@ -1,0 +1,26 @@
+{
+  "poNumber": "PO-1001",
+  "status": "mismatch",
+  "stats": {
+    "poAmount": 32100.00,
+    "totalInvoiced": 34840.00,
+    "totalReceived": 31200.00
+  },
+  "rows": [
+    { "documentType": "PO", "documentNumber": "PO-1001", "date": "2024-05-01T00:00:00.000Z", "itemCount": 3, "quantity": 900, "status": "Raised" },
+    { "documentType": "GRN", "documentNumber": "GRN-5107297866", "date": "2024-05-06T00:00:00.000Z", "itemCount": 3, "quantity": 880, "status": "Received" },
+    { "documentType": "Invoice", "documentNumber": "INV-88210", "date": "2024-05-07T00:00:00.000Z", "itemCount": 3, "quantity": 900, "status": "Invoiced" },
+    {
+      "documentType": "Current Status",
+      "documentNumber": "—",
+      "date": null,
+      "itemCount": 3,
+      "quantity": null,
+      "poQuantity": 900,
+      "receivedQuantity": 880,
+      "invoicedQuantity": 900,
+      "pendingDelivery": 20,
+      "status": "mismatch"
+    }
+  ]
+}

@@ -17,8 +17,12 @@ app.use(
       const allowed = [
         process.env.FRONTEND_ORIGIN,
         "https://three-way-match-engine-alpha.vercel.app",
-        "http://localhost:3000",
+        "http://localhost:3000","http://localhost:3001","http://localhost:3002","http://localhost:3003"
       ].filter(Boolean);
+      
+      console.log("CORS request origin:", origin);
+      console.log("Allowed origins:", allowed);
+      
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {

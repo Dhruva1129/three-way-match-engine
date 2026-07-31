@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileStack, LayoutGrid, Package, User, LogOut } from "lucide-react";
+import { FileStack, LayoutGrid, Package, BookOpen, LogOut } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { clearToken } from "@/lib/api";
 
@@ -33,7 +33,7 @@ export function Sidebar() {
       <SidebarItem Icon={Package} title="SKU Master" active={pathname.startsWith('/masters')} onClick={() => router.push('/masters')} isExpanded={isExpanded} />
 
       <div className="mt-auto flex flex-col gap-1">
-        <SidebarItem Icon={User} title="Profile" active={pathname.startsWith('/profile')} onClick={() => router.push('/profile')} isExpanded={isExpanded} />
+        <SidebarItem Icon={BookOpen} title="How to Use" active={pathname.startsWith('/how-to-use')} onClick={() => router.push('/how-to-use')} isExpanded={isExpanded} />
         <SidebarItem Icon={LogOut} title="Log out" onClick={logout} isExpanded={isExpanded} />
       </div>
     </aside>

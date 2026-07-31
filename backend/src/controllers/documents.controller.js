@@ -73,6 +73,10 @@ async function uploadDocument(req, res, next) {
     );
 
     // Step 4: persist (independent of whether a PO exists yet for this poNumber)
+    // Read the file into a buffer so it persists in MongoDB
+    // (Render uses ephemeral disk — files vanish on redeploy).
+    const fileBuffer = fs.readFileSync(req.file.path);
+
     const Model = MODEL_BY_TYPE[documentType];
     const doc = new Model({
       ...buildDocFields(documentType, parsed),
@@ -82,6 +86,7 @@ async function uploadDocument(req, res, next) {
         filename: req.file.filename,
         originalName: req.file.originalname,
         mimeType: req.file.mimetype,
+        fileData: fileBuffer,
       },
     });
     await doc.save();
@@ -126,7 +131,7 @@ async function getDocumentById(req, res, next) {
   try {
     const { id } = req.params;
     for (const [type, Model] of Object.entries(MODEL_BY_TYPE)) {
-      const doc = await Model.findById(id).populate("items.skuMaster");
+      const doc = await Model.findById(id).select("-sourceFile.fileData").populate("items.skuMaster");
       if (doc) return res.json({ documentType: type, document: doc });
     }
     throw new AppError(404, `No document found with id ${id}`);
@@ -135,26 +140,40 @@ async function getDocumentById(req, res, next) {
   }
 }
 
-/** GET /documents/:id/file — streams the original uploaded file for preview. */
+/** GET /documents/:id/file — serves the original uploaded file for preview.
+ *  First tries the buffer stored in MongoDB; falls back to disk. */
 async function getDocumentFile(req, res, next) {
   try {
     const { id } = req.params;
     let found = null;
     for (const Model of Object.values(MODEL_BY_TYPE)) {
-      const doc = await Model.findById(id).lean();
+      const doc = await Model.findById(id);
       if (doc) {
         found = doc;
         break;
       }
     }
     if (!found) throw new AppError(404, `No document found with id ${id}`);
-    if (!found.sourceFile?.filename) throw new AppError(404, "No source file stored for this document");
+    if (!found.sourceFile) throw new AppError(404, "No source file stored for this document");
 
-    const filePath = path.join(uploadDir, found.sourceFile.filename);
-    if (!fs.existsSync(filePath)) throw new AppError(404, "Source file is missing from disk");
+    const mimeType = found.sourceFile.mimeType || "application/octet-stream";
 
-    res.setHeader("Content-Type", found.sourceFile.mimeType || "application/octet-stream");
-    res.sendFile(filePath);
+    // Prefer the buffer stored in MongoDB (works on Render's ephemeral FS)
+    if (found.sourceFile.fileData) {
+      res.setHeader("Content-Type", mimeType);
+      return res.send(found.sourceFile.fileData);
+    }
+
+    // Fallback: try disk (local dev)
+    if (found.sourceFile.filename) {
+      const filePath = path.join(uploadDir, found.sourceFile.filename);
+      if (fs.existsSync(filePath)) {
+        res.setHeader("Content-Type", mimeType);
+        return res.sendFile(filePath);
+      }
+    }
+
+    throw new AppError(404, "Source file is missing");
   } catch (err) {
     next(err);
   }
@@ -174,7 +193,7 @@ async function listDocuments(req, res, next) {
 
     const results = {};
     for (const t of types) {
-      results[t] = await MODEL_BY_TYPE[t].find(filter).sort({ createdAt: -1 }).select("-rawParsed");
+      results[t] = await MODEL_BY_TYPE[t].find(filter).sort({ createdAt: -1 }).select("-rawParsed -sourceFile.fileData");
     }
 
     res.json(type ? results[type] : results);

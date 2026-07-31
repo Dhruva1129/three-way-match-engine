@@ -26,6 +26,7 @@ const PurchaseOrderSchema = new mongoose.Schema(
       filename: String,
       originalName: String,
       mimeType: String,
+      fileData: { type: Buffer, default: null },
     },
   },
   { timestamps: true }

@@ -29,7 +29,7 @@ export function FilePreview({ documentId }: { documentId: string | null }) {
   }, [documentId]);
 
   return (
-    <div className="panel flex h-full flex-col overflow-hidden">
+    <div className="panel flex h-full min-h-[480px] flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
         <span className="field-label">Original Document</span>
         <div className="flex items-center gap-1">

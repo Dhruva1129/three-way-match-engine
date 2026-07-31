@@ -7,7 +7,7 @@ export function DocumentForm({
 }: {
   title: string;
   accent: "po" | "grn" | "invoice";
-  fields: { label: string; value: string }[];
+  fields: { label: string; value?: string; placeholder?: string }[];
 }) {
   const accentClass = {
     po: "border-l-brand-500",
@@ -22,7 +22,7 @@ export function DocumentForm({
         {fields.map((f) => (
           <div key={f.label}>
             <dt className="field-label">{f.label}</dt>
-            <dd className="field-value mt-0.5">{f.value || "—"}</dd>
+            <dd className="field-value mt-0.5">{f.value ?? f.placeholder ?? ""}</dd>
           </div>
         ))}
       </dl>

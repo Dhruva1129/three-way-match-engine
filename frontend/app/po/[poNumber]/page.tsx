@@ -7,7 +7,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { TopTabs, SubTabPills, TopTabKey } from "@/components/TopTabs";
 import { StatusBadge } from "@/components/StatusBadge";
 import { MismatchBanner } from "@/components/MismatchBanner";
-import { DocumentForm } from "@/components/DocumentForm";
+import { DetailWorkspaceLayout } from "@/components/DetailWorkspaceLayout";
+import { DocumentDetailPanel } from "@/components/DocumentDetailPanel";
 import { FilePreview } from "@/components/FilePreview";
 import { ItemGrid } from "@/components/ItemGrid";
 import { DocItemsTable } from "@/components/DocItemsTable";
@@ -16,7 +17,8 @@ import { UploadModal } from "@/components/UploadModal";
 import { useAuthGuard } from "@/lib/auth";
 import { useMatch } from "@/hooks/useMatch";
 import { useSummary } from "@/hooks/useSummary";
-import { useDocumentsList } from "@/hooks/useDocuments";
+import { useDocument, useDocumentsList } from "@/hooks/useDocuments";
+import { buildDeliveryTabSections, buildFulfillmentTabSections, buildPoTabSections } from "@/lib/documentSections";
 import { REASON_LABELS } from "@/lib/types";
 
 function fmtDate(d?: string | null) {
@@ -32,10 +34,6 @@ function fmtDateShort(d?: string | null) {
 function fmtMoney(n?: number) {
   return `₹${(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
-function poNetAmount(items: { unitRate?: number; quantity?: number; receivedQuantity?: number }[]) {
-  return items.reduce((s, it) => s + (it.unitRate || 0) * (it.quantity ?? it.receivedQuantity ?? 0), 0);
-}
-
 export default function PoWorkspacePage() {
   const router = useRouter();
   const params = useParams<{ poNumber: string }>();
@@ -67,12 +65,17 @@ export default function PoWorkspacePage() {
     if (grns.length > 0 && !activeGrnId) setActiveGrnId(grns[0]._id);
   }, [grns, activeGrnId]);
 
+  const activeInvoiceQuery = useDocument(activeInvoiceId);
+  const activeGrnQuery = useDocument(activeGrnId);
+
   if (!ready || !authenticated) return null;
 
   const match = matchQuery.data;
   const canonicalPO = pos[0];
   const activeInvoice = invoices.find((i) => i._id === activeInvoiceId) || invoices[0];
   const activeGrn = grns.find((g) => g._id === activeGrnId) || grns[0];
+  const activeInvoiceDoc = activeInvoiceQuery.data?.document || activeInvoice;
+  const activeGrnDoc = activeGrnQuery.data?.document || activeGrn;
 
   return (
     <div className="flex h-screen">
@@ -85,10 +88,9 @@ export default function PoWorkspacePage() {
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-mono text-lg font-semibold text-ink-900">{poNumber}</h1>
+                <h1 className="font-mono text-lg font-semibold text-ink-900">PO : {poNumber}</h1>
                 {match && <StatusBadge status={match.status} />}
               </div>
-              <p className="text-xs text-slate-500">{canonicalPO?.vendorName || "Vendor pending PO upload"}</p>
             </div>
           </div>
           <button
@@ -108,16 +110,23 @@ export default function PoWorkspacePage() {
 
         <TopTabs active={tab} onChange={setTab} counts={{ po: pos.length, fulfillment: invoices.length, delivery: grns.length }} />
 
+        {tab === "po" && canonicalPO && (
+          <SubTabPills
+            items={[{ id: canonicalPO._id, label: `PO : ${canonicalPO.poNumber}` }]}
+            activeId={canonicalPO._id}
+            onChange={() => {}}
+          />
+        )}
         {tab === "fulfillment" && (
           <SubTabPills
-            items={invoices.map((i) => ({ id: i._id, label: `Invoice : ${i.invoiceNumber} Raised` }))}
+            items={invoices.map((i) => ({ id: i._id, label: `Invoice : ${i.invoiceNumber}` }))}
             activeId={activeInvoiceId}
             onChange={setActiveInvoiceId}
           />
         )}
         {tab === "delivery" && (
           <SubTabPills
-            items={grns.map((g) => ({ id: g._id, label: `GRN : ${g.grnNumber} Raised` }))}
+            items={grns.map((g) => ({ id: g._id, label: `GRN : ${g.grnNumber}` }))}
             activeId={activeGrnId}
             onChange={setActiveGrnId}
           />
@@ -128,24 +137,10 @@ export default function PoWorkspacePage() {
             (canonicalPO ? (
               <div className="space-y-5">
                 <MismatchBanner reasons={match?.reasons || []} />
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <DocumentForm
-                    accent="po"
-                    title="PO Details"
-                    fields={[
-                      { label: "PO Number", value: canonicalPO.poNumber },
-                      { label: "PO Date", value: fmtDateShort(canonicalPO.poDate) },
-                      { label: "Expiry Date", value: "24/07/2026" },
-                      { label: "Delivery Date", value: "24/07/2026" },
-                      { label: "Total SKUs", value: "" },
-                      {
-                        label: "Net Amount",
-                        value: poNetAmount(canonicalPO.items) ? poNetAmount(canonicalPO.items).toFixed(2) : "119291.98",
-                      },
-                    ]}
-                  />
-                  <FilePreview documentId={canonicalPO._id} />
-                </div>
+                <DetailWorkspaceLayout
+                  formPanel={<DocumentDetailPanel sections={buildPoTabSections(canonicalPO)} />}
+                  preview={<FilePreview documentId={canonicalPO._id} />}
+                />
                 <ItemGrid items={match?.items || []} />
               </div>
             ) : (
@@ -155,59 +150,10 @@ export default function PoWorkspacePage() {
           {tab === "fulfillment" &&
             (activeInvoice ? (
               <div className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div className="space-y-5">
-                    <DocumentForm
-                      accent="invoice"
-                      title="Invoice Details"
-                      fields={[
-                        { label: "Account Name", value: "RRL" },
-                        { label: "Sub Account", value: "Reliance Retail Limited" },
-                        { label: "Store Name", value: "RRL_Nelamangala(FREC)" },
-                        { label: "Store Code", value: "FREC" },
-                        { label: "Store GST", value: "29AABCR1718E1ZL" },
-                        { label: "Invoice Number", value: activeInvoice.invoiceNumber || "B12729000200" },
-                        { label: "Due Date", placeholder: "dd/mm/yyyy" },
-                        { label: "Invoice Date", value: fmtDateShort(activeInvoice.invoiceDate) || "16/07/2026" },
-                        {
-                          label: "Net Amount",
-                          value: poNetAmount(activeInvoice.items) ? String(poNetAmount(activeInvoice.items)) : "8400",
-                        },
-                        { label: "Outstanding Amount", value: "" },
-                        { label: "Paid Amount", value: "" },
-                      ]}
-                    />
-                    <DocumentForm
-                      accent="po"
-                      title="PO Details"
-                      fields={[
-                        { label: "PO Number", value: activeInvoice.poNumber || canonicalPO?.poNumber || "5115257658" },
-                        { label: "PO Date", value: fmtDateShort(canonicalPO?.poDate) || "16/07/2026" },
-                        { label: "Expiry Date", value: "24/07/2026" },
-                        { label: "Delivery Date", value: "24/07/2026" },
-                        { label: "Total SKUs", value: "" },
-                        {
-                          label: "Net Amount",
-                          value: canonicalPO && poNetAmount(canonicalPO.items)
-                            ? poNetAmount(canonicalPO.items).toFixed(2)
-                            : "119291.98",
-                        },
-                      ]}
-                    />
-                    <DocumentForm
-                      accent="invoice"
-                      title="Depot Details"
-                      fields={[
-                        { label: "Depot Name", value: "BFIL_Tumakuru" },
-                        { label: "Depot GST", value: "29AAICS1030P2ZO" },
-                        { label: "Depot Address", value: "Plot No 26B India Food Park Vasan..." },
-                        { label: "Depot Pincode", value: "572138" },
-                      ]}
-                    />
-                    <DocumentForm accent="invoice" title="Delivery Config" fields={[]} />
-                  </div>
-                  <FilePreview documentId={activeInvoice._id} />
-                </div>
+                <DetailWorkspaceLayout
+                  formPanel={<DocumentDetailPanel sections={buildFulfillmentTabSections(activeInvoiceDoc, canonicalPO)} />}
+                  preview={<FilePreview documentId={activeInvoice._id} />}
+                />
                 <DocItemsTable items={activeInvoice.items} showRate />
               </div>
             ) : (
@@ -217,53 +163,10 @@ export default function PoWorkspacePage() {
           {tab === "delivery" &&
             (activeGrn ? (
               <div className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div className="space-y-5">
-                    <DocumentForm
-                      accent="grn"
-                      title="GRN Details"
-                      fields={[
-                        { label: "GRN Number", value: activeGrn.grnNumber || "5107297866" },
-                        { label: "GRN Date", value: fmtDateShort(activeGrn.grnDate) || "17/07/2026" },
-                        { label: "Challan Number", value: "" },
-                        { label: "Challan Date", placeholder: "dd/mm/yyyy" },
-                      ]}
-                    />
-                    <DocumentForm
-                      accent="invoice"
-                      title="Invoice Details"
-                      fields={[
-                        {
-                          label: "Invoice Number",
-                          value: invoices[0]?.invoiceNumber || "812729000200",
-                        },
-                        { label: "Due Date", placeholder: "dd/mm/yyyy" },
-                        { label: "Invoice Date", value: fmtDateShort(invoices[0]?.invoiceDate) || "16/07/2026" },
-                        { label: "Net Amount", value: "" },
-                        { label: "Outstanding Amount", value: "" },
-                        { label: "Paid Amount", value: "" },
-                      ]}
-                    />
-                    <DocumentForm
-                      accent="po"
-                      title="PO Details"
-                      fields={[
-                        { label: "PO Number", value: activeGrn.poNumber || canonicalPO?.poNumber || "5115257658" },
-                        { label: "PO Date", value: fmtDateShort(canonicalPO?.poDate) || "16/07/2026" },
-                        { label: "Expiry Date", value: "24/07/2026" },
-                        { label: "Delivery Date", value: "24/07/2026" },
-                        { label: "Total SKUs", value: "" },
-                        {
-                          label: "Net Amount",
-                          value: canonicalPO && poNetAmount(canonicalPO.items)
-                            ? poNetAmount(canonicalPO.items).toFixed(2)
-                            : "119291.98",
-                        },
-                      ]}
-                    />
-                  </div>
-                  <FilePreview documentId={activeGrn._id} />
-                </div>
+                <DetailWorkspaceLayout
+                  formPanel={<DocumentDetailPanel sections={buildDeliveryTabSections(activeGrnDoc, canonicalPO, activeInvoiceDoc)} />}
+                  preview={<FilePreview documentId={activeGrn._id} />}
+                />
                 <DocItemsTable items={activeGrn.items} showRate={false} />
               </div>
             ) : (

@@ -22,7 +22,7 @@ export function DocumentForm({
         {fields.map((f) => (
           <div key={f.label}>
             <dt className="field-label">{f.label}</dt>
-            <dd className="field-value mt-0.5">{f.value ?? f.placeholder ?? ""}</dd>
+            <dd className="field-value mt-0.5">{(f.value && f.value.trim()) || f.placeholder || "—"}</dd>
           </div>
         ))}
       </dl>

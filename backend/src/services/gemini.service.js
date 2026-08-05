@@ -9,17 +9,29 @@ Extract data from this Purchase Order (PO) document image/PDF and return ONLY va
 {
   "poNumber": string,
   "poDate": string (ISO 8601, e.g. "2024-05-01"),
+  "expiryDate": string (ISO 8601 or ""),
+  "deliveryDate": string (ISO 8601 or ""),
   "vendorName": string,
+  "vendorGST": string,
+  "vendorAddress": string,
+  "customerName": string,
+  "customerGST": string,
+  "billingAddress": string,
+  "shippingAddress": string,
+  "totalSKUs": number,
+  "totalQuantity": number,
+  "netAmount": number,
+  "grossAmount": number,
   "items": [
-    { "itemCode": string, "description": string, "quantity": number }
+    { "itemCode": string, "description": string, "quantity": number, "unitRate": number, "mrp": number }
   ]
 }
 
 Rules:
-- itemCode is the vendor/ERP item code printed on the line (not a row number).
-- If a field is not visible on the document, use an empty string ("") for strings or 0 for numbers — never omit the key.
-- quantity must be numeric (no units or commas).
-- Return every line item found on the PO, including ones that may look duplicated.`,
+- itemCode is the vendor/ERP item code printed on the line.
+- Extract only values clearly present on the PO document. Omit keys or use "" / 0 if not present on the document.
+- quantity, unitRate, mrp, netAmount must be numeric.
+- Return every line item found on the PO.`,
 
   grn: `You are a document extraction engine for a procurement system.
 Extract data from this Goods Receipt Note (GRN) document image/PDF and return ONLY valid JSON
@@ -29,16 +41,20 @@ Extract data from this Goods Receipt Note (GRN) document image/PDF and return ON
   "grnNumber": string,
   "poNumber": string,
   "grnDate": string (ISO 8601, e.g. "2024-05-01"),
+  "vendorName": string,
+  "vendorGST": string,
+  "challanNumber": string,
+  "challanDate": string (ISO 8601 or ""),
+  "totalReceivedQuantity": number,
   "items": [
     { "itemCode": string, "description": string, "receivedQuantity": number, "mrp": number }
   ]
 }
 
 Rules:
-- itemCode is the vendor/ERP item code printed on the line (not a row number).
-- poNumber is the purchase order this GRN fulfils — read it off the document even if the PO hasn't been uploaded yet.
-- If mrp is not printed on the document, use 0.
-- If a field is not visible, use "" for strings or 0 for numbers — never omit the key.`,
+- itemCode is the vendor/ERP item code printed on the line.
+- poNumber is the purchase order reference on the GRN document.
+- Extract only values clearly present on the GRN document. Omit keys or use "" / 0 if not present.`,
 
   invoice: `You are a document extraction engine for a procurement system.
 Extract data from this Invoice document image/PDF and return ONLY valid JSON
@@ -48,15 +64,24 @@ Extract data from this Invoice document image/PDF and return ONLY valid JSON
   "invoiceNumber": string,
   "poNumber": string,
   "invoiceDate": string (ISO 8601, e.g. "2024-05-01"),
+  "dueDate": string (ISO 8601 or ""),
+  "customerName": string,
+  "customerGST": string,
+  "billingAddress": string,
+  "shippingAddress": string,
+  "totalSKUs": number,
+  "netAmount": number,
+  "taxAmount": number,
+  "grossAmount": number,
   "items": [
     { "itemCode": string, "description": string, "quantity": number, "unitRate": number, "mrp": number }
   ]
 }
 
 Rules:
-- itemCode is the vendor/ERP item code printed on the line (not a row number).
-- unitRate is the per-unit billed price; mrp is the printed MRP if visible, else 0.
-- If a field is not visible, use "" for strings or 0 for numbers — never omit the key.`,
+- itemCode is the vendor/ERP item code printed on the line.
+- poNumber is the purchase order reference on the invoice.
+- Extract only values clearly present on the Invoice document. Omit keys or use "" / 0 if not present.`
 };
 
 function getClient() {

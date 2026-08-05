@@ -193,7 +193,7 @@ async function listDocuments(req, res, next) {
 
     const results = {};
     for (const t of types) {
-      results[t] = await MODEL_BY_TYPE[t].find(filter).sort({ createdAt: -1 }).select("-rawParsed -sourceFile.fileData");
+      results[t] = await MODEL_BY_TYPE[t].find(filter).sort({ createdAt: -1 }).select("-sourceFile.fileData");
     }
 
     res.json(type ? results[type] : results);
